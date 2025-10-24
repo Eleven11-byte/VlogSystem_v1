@@ -72,9 +72,9 @@ def find_similar(file_path, target_embedding, threshold):
 
     files = os.listdir(file_path)
     for file in files:
-        # TODO: 移除此处打印
+        # FIXME: 修改文件名生成方式
         # print(file)
-        faces_embeddings = np.load(file_path + file)
+        faces_embeddings = np.load(file_path + '/' + file)
         for embedding in faces_embeddings:
             if face_compare(embedding, target_embedding, threshold):
                 # TODO：根据具体情况更新文件名
