@@ -38,3 +38,6 @@ def extract_frames_from_video(video_path, timestamps, out_folder, view_position,
             embeddings = face_extractor.extract_features(frame)
             np.save(feature_path, embeddings)
     cap.release()
+
+def ensure_dir(path):
+    os.makedirs(path, exist_ok=True)

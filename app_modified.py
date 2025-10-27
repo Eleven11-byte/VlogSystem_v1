@@ -13,18 +13,23 @@ from config import (
     PREPARED_FOLDER, OUTPUT_FOLDER, VIEW_POSITIONS, THRESHOLD
 )
 
-from services.camera_service import handle_upload_frames, get_is_recording
+# from services.camera_service import handle_upload_frames, get_is_recording
+
 from services.face_service import handle_upload_facepic, handle_upload_video
 from services.video_service import handle_get_video, download_video_file, preview_output
+from services.camera_service import camera_manager
 
 app = Flask(__name__)
 CORS(app)
+camera_manager.start_all()
 
 # create folders at startup (redundant safe)
 for p in [FRAMES_FOLDER, UPLOAD_FOLDER, TEMP_FOLDER, THREEFRAMES_FOLDER, FEATURES_FOLDER,
           FACE_FOLDER, FACE_FEATURE_FOLDER, BACKGROUNDMUSIC_FOLDER, PREPARED_FOLDER, OUTPUT_FOLDER]:
     os.makedirs(p, exist_ok=True)
 
+"""
+# 摄像头修改后已去掉
 # Routes (kept same endpoints as your original)
 @app.route('/isRecording', methods=['GET'])
 def is_recording():
@@ -33,6 +38,7 @@ def is_recording():
 @app.route('/uploadFrames', methods=['POST'])
 def upload_frames():
     return handle_upload_frames(request)
+"""
 
 @app.route('/uploadVideo', methods=['POST'])
 def upload_video():
@@ -53,6 +59,33 @@ def preview(filename):
 @app.route('/downloadVideo', methods=['GET'])
 def download_video():
     return download_video_file(request)
+
+
+"""
+摄像头管理
+"""
+
+@app.route("/camera/status", methods=["GET"])
+def camera_status():
+    """查看所有摄像头状态"""
+    return jsonify(camera_manager.get_status())
+
+
+@app.route("/camera/frame/<cam_id>", methods=["GET"])
+def get_latest_frame(cam_id):
+    """获取某个摄像头的最新帧"""
+    frame_path = camera_manager.get_frame_path(cam_id)
+    if frame_path and os.path.exists(frame_path):
+        return send_file(frame_path, mimetype="image/jpeg")
+    else:
+        return jsonify({"status": "error", "msg": "No frame available"}), 404
+
+
+
+
+@app.route("/")
+def index():
+    return jsonify({"msg": "Camera backend running"})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
