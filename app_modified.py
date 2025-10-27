@@ -21,12 +21,15 @@ from services.camera_service import camera_manager
 
 app = Flask(__name__)
 CORS(app)
+
 camera_manager.start_all()
 
 # create folders at startup (redundant safe)
 for p in [FRAMES_FOLDER, UPLOAD_FOLDER, TEMP_FOLDER, THREEFRAMES_FOLDER, FEATURES_FOLDER,
           FACE_FOLDER, FACE_FEATURE_FOLDER, BACKGROUNDMUSIC_FOLDER, PREPARED_FOLDER, OUTPUT_FOLDER]:
     os.makedirs(p, exist_ok=True)
+
+mpy_config.change_settings({"FFMPEG_BINARY": "D:/Document/ffmpeg-6.1.1-full_build/bin/ffmpeg.exe"})
 
 """
 # 摄像头修改后已去掉
@@ -79,9 +82,6 @@ def get_latest_frame(cam_id):
         return send_file(frame_path, mimetype="image/jpeg")
     else:
         return jsonify({"status": "error", "msg": "No frame available"}), 404
-
-
-
 
 @app.route("/")
 def index():

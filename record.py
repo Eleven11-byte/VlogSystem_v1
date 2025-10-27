@@ -40,8 +40,6 @@ class DetectVisitor:
         bboxes = result['bboxes2draw']
         # print(bboxes)
 
-        #if len(bboxes) > 0:
-
         if len(bboxes) > 0:  # 屏幕中检测到了不止一个人
             for bbox in bboxes:
                 x1, y1, x2, y2, _, _ = bbox

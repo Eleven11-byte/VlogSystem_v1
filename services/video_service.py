@@ -58,22 +58,35 @@ def handle_get_video(request):
 
     # 默认使用第一个 embedding（跟你原代码一致）
     videoOfUser, _ = getVideoList(VIEW_POSITIONS, target_embeddings[0], THRESHOLD)
+    print(videoOfUser)
 
     # 把对应的视频加入 clips（与原代码逻辑保持一致）
     clips = []
     # 处理每个 view (view1, view2, view3)
+
+
     for v in VIEW_POSITIONS:
         # find index in videoOfUser
+        """
+        idx = find_video_indices(videoOfUser, v)
+        user_video_name = videoOfUser[idx]
+        user_video_path = os.path.join(UPLOAD_FOLDER, v, f"{user_video_name}.mp4")
+        print(f"对应视频文件：{user_video_path}")
+        clip = VideoFileClip(user_video_path).set_fps(30).resize((3840, 2160))
+        clips.append(clip)
+        """
         try:
             idx = find_video_indices(videoOfUser, v)
             user_video_name = videoOfUser[idx]
             user_video_path = os.path.join(UPLOAD_FOLDER, v, f"{user_video_name}.mp4")
+            print(f"对应视频文件：{user_video_path}")
             if not os.path.exists(user_video_path):
                 return jsonify({"error": f"缺少人像视频文件: {user_video_path}"}), 404
             clip = VideoFileClip(user_video_path).set_fps(30).resize((3840, 2160))
             clips.append(clip)
         except Exception as e:
             return jsonify({"error": f"视频列表中未找到{v}或索引错误: {e}"}), 400
+
 
     # 插入预制景区视频（按你原始文件名）
     prepared_names = [
@@ -82,6 +95,7 @@ def handle_get_video(request):
         '20240424_C1672.MP4',
         '20240424_C1694.MP4'
     ]
+
     prepared_paths = [os.path.join(PREPARED_FOLDER, n) for n in prepared_names]
     # 插入到特定位置以匹配原脚本（0,2,4,6）
     for i, p in enumerate(prepared_paths):

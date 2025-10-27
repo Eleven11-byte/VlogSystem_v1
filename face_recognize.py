@@ -13,27 +13,10 @@ class FaceExtractor:
     """
     提取图片中人脸的面部特征并存储
     """
-
     def __init__(self):
         self.app = FaceAnalysis(name='buffalo_sc')
         # 进行设置，resize后的大小
         self.app.prepare(ctx_id=-1, det_size=(640, 640))
-
-    def extract(self, image):
-        return self.app(image)
-
-    def save_embedding(self, image, image_id, save_path):
-        faces = self.app.get(image)
-        faces_embedding = []
-        # 对画面中识别到的所有人脸提取特征并存储
-        for i in range(len(faces)):
-            faces_embedding.append(faces[i]["embedding"])
-            embedding = np.array(embedding).reshape((1, -1))
-            embedding = preprocessing.normalize(embedding)
-        faces_embedding = np.array(faces_embedding)
-        # TODO: 更新特征存储位置
-        file_name = save_path + image_id + ".npy"
-        np.save(file_name, faces_embedding)
 
     def extract_features(self, image):
         faces = self.app.get(image)
@@ -49,7 +32,6 @@ class FaceExtractor:
         # TODO: 异常处理，从图像中未能提取到人脸特征的情况
         return faces_embedding
 
-
 def face_compare(feature1, feature2, threshold):
     diff = np.subtract(feature1, feature2)
     dist = np.sum(np.square(diff), 1)
@@ -59,7 +41,6 @@ def face_compare(feature1, feature2, threshold):
         return True
     else:
         return False
-
 
 def find_similar(file_path, target_embedding, threshold):
     """

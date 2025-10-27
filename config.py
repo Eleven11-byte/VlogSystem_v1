@@ -51,5 +51,7 @@ THRESHOLD = 1.0
 DETECT_CONDITION = [20, 800, 200, 100]
 # ffmpeg path is set via moviepy config in app.py
 
-FFMPEG_PATH = "/usr/bin/ffmpeg"
+# FFMPEG_PATH = "/usr/bin/ffmpeg"
+FFMPEG_PATH = "D:/Document/ffmpeg-6.1.1-full_build/bin/ffmpeg.exe"
 FPS = 25
+RECORD_DURATION = 10
