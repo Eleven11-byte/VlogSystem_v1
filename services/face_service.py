@@ -2,7 +2,7 @@
 import os
 import time
 from flask import jsonify
-from config import TEMP_FOLDER, UPLOAD_FOLDER, THREEFRAMES_FOLDER, FEATURES_FOLDER, FACE_FOLDER, FACE_FEATURE_FOLDER, VIEW_POSITIONS
+from config import  UPLOAD_FOLDER, FEATURES_FOLDER, FACE_FOLDER, FACE_FEATURE_FOLDER, VIEW_POSITIONS
 from utils_app import reencode_video, extract_frames_from_video
 from face_extractor_singleton import face_extractor  # 你原来的单例
 import cv2

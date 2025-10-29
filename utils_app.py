@@ -5,6 +5,9 @@ import numpy as np
 import cv2
 import re
 
+from config import FEATURES_FOLDER, UPLOAD_FOLDER
+
+
 def reencode_video(input_path, output_path):
     cmd = [
         'ffmpeg', '-y',
@@ -45,7 +48,7 @@ def ensure_dir(path):
 
 from datetime import datetime
 
-def generate_file_name(base_timestamp, file_type, seq, sub_seq=None):
+def generate_file_name(base_timestamp, file_type, view_id, seq = None):
     """
     生成文件名
     :param base_timestamp: 视频起始时间戳（字符串，如"20251029_163025_789"）
@@ -55,13 +58,16 @@ def generate_file_name(base_timestamp, file_type, seq, sub_seq=None):
     :return: 完整文件名
     """
     # 序号补零（确保3位，支持001~999）
-    seq_str = f"{seq:03d}"
-    # 拼接二级序号（若有）
-    if sub_seq is not None:
-        seq_str += f"_{sub_seq:02d}"
+
+    # view_id（对应cam_id），拼接二级序号
+    if seq is not None:
+        seq_str = f"{seq:03d}"
+        tag_str = view_id + "_" + seq_str
+    else:
+        tag_str = view_id
     # 后缀映射
     ext_map = {"video": "mp4", "frame": "jpg", "facefeat": "npy"}
-    return f"{base_timestamp}_{file_type}_{seq_str}.{ext_map[file_type]}"
+    return f"{base_timestamp}_{tag_str}.{ext_map[file_type]}"
 
 def extract_base_timestamp_regex(file_name):
     # 正则匹配基础时间戳（格式：8位日期_6位时间_3位毫秒）
@@ -77,25 +83,39 @@ def extract_base_timestamp_regex(file_name):
 def find_corresponding_video(face_feat_file, video_ext="mp4"):
     # 1. 提取基础时间戳
     base_ts = extract_base_timestamp_regex(face_feat_file)
+    view_id = face_feat_file.split(".")[0].split("_")[-2]
     # 2. 拼接视频文件名
-    video_file = f"{base_ts}_video_000.{video_ext}"
+    video_file = f"{base_ts}_{view_id}.{video_ext}"
     # 3. 假设视频与特征文件在同一目录，直接返回路径（实际中可拼接目录）
     return video_file
 
-if __name__ == "__main__":
-    # 示例：生成某视频的关联文件
 
-    base_ts = datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:-3]  # 基础时间戳
-    video_name = generate_file_name(base_ts, "video", 0)  # 视频文件
-    frame1_name = generate_file_name(base_ts, "frame", 1)  # 第1帧
-    face_feat_name = generate_file_name(base_ts, "facefeat", 1)  # 第3帧第1个人脸特征
+def print_file_tree(root_dir, prefix=""):
+    """
+    递归打印目录的文件树
+    :param root_dir: 根目录路径
+    :param prefix: 前缀符号，用于表示层级
+    """
+    # 获取目录下的所有文件和子目录（按名称排序）
+    items = sorted(os.listdir(root_dir))
+    # 遍历所有项目
+    for i, item in enumerate(items):
+        item_path = os.path.join(root_dir, item)
+        # 判断是否为最后一个项目（用于调整前缀符号）
+        is_last = (i == len(items) - 1)
 
-    print(video_name)       # 20251029_163025_789_video_000.mp4
-    print(frame1_name)      # 20251029_163025_789_frame_001.jpg
-    print(face_feat_name)   # 20251029_163025_789_facefeat_003_01.npy
+        # 打印当前项目名称
+        if is_last:
+            print(f"{prefix}└── {item}")
+            # 下一级前缀（最后一个项目的子项前缀无竖线）
+            new_prefix = f"{prefix}    "
+        else:
+            print(f"{prefix}├── {item}")
+            # 下一级前缀（非最后一个项目的子项前缀有竖线）
+            new_prefix = f"{prefix}│   "
 
-    base_ts_find = extract_base_timestamp_regex(face_feat_name)
-    video_name = find_corresponding_video(face_feat_name)
-    print(base_ts_find)
-    print(video_name)
+        # 如果是目录，递归处理子目录
+        if os.path.isdir(item_path):
+            print_file_tree(item_path, new_prefix)
+
 

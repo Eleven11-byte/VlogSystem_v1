@@ -3,7 +3,20 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+DATA_DIR = os.path.join(BASE_DIR, 'DATA')
+
+FRAMES_FOLDER = os.path.join(DATA_DIR, 'frames') + os.sep
+UPLOAD_FOLDER = os.path.join(DATA_DIR, 'records') + os.sep
+FEATURES_FOLDER = os.path.join(DATA_DIR, 'featuresfromvideo') + os.sep
+
+FACE_FOLDER = os.path.join(DATA_DIR, 'faces') + os.sep
+FACE_FEATURE_FOLDER = os.path.join(DATA_DIR, 'facefeature') + os.sep
+BACKGROUNDMUSIC_FOLDER = os.path.join(DATA_DIR, 'audio') + os.sep
+PREPARED_FOLDER = os.path.join(DATA_DIR, 'prepareds') + os.sep
+OUTPUT_FOLDER = os.path.join(DATA_DIR, 'outputs') + os.sep
+
 # core folders (same names as your original script)
+"""
 FRAMES_FOLDER = os.path.join(BASE_DIR, 'frames') + os.sep
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads') + os.sep
 TEMP_FOLDER = os.path.join(BASE_DIR, 'temp') + os.sep
@@ -15,11 +28,9 @@ FACE_FEATURE_FOLDER = os.path.join(BASE_DIR, 'facefeature') + os.sep
 BACKGROUNDMUSIC_FOLDER = os.path.join(BASE_DIR, 'audio') + os.sep
 PREPARED_FOLDER = os.path.join(BASE_DIR, 'prepareds') + os.sep
 OUTPUT_FOLDER = os.path.join(BASE_DIR, 'outputs') + os.sep
-
+"""
 # 上传或保存目录
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FRAME_SAVE_DIR = os.path.join(BASE_DIR, "data/camera_frames")
-
 CAMERA_VIDEO_FOLDER = os.path.join(BASE_DIR, "camera_videos")
 CAMERA_FRAME_FOLDER = os.path.join(BASE_DIR, "camera_frames")
 
@@ -31,12 +42,12 @@ CAMERA_VIEW = {"cam1":"view1", "cam2":"view2"}
 for view in VIEW_POSITIONS:
     os.makedirs(os.path.join(FRAMES_FOLDER, view), exist_ok=True)
     os.makedirs(os.path.join(UPLOAD_FOLDER, view), exist_ok=True)
-    os.makedirs(os.path.join(TEMP_FOLDER, view), exist_ok=True)
-    os.makedirs(os.path.join(THREEFRAMES_FOLDER, view), exist_ok=True)
+    # os.makedirs(os.path.join(TEMP_FOLDER, view), exist_ok=True)
+    # os.makedirs(os.path.join(THREEFRAMES_FOLDER, view), exist_ok=True)
     os.makedirs(os.path.join(FEATURES_FOLDER, view), exist_ok=True)
 
 # make base dirs
-for p in [FRAMES_FOLDER, UPLOAD_FOLDER, TEMP_FOLDER, THREEFRAMES_FOLDER, FEATURES_FOLDER,
+for p in [FRAMES_FOLDER, UPLOAD_FOLDER, FEATURES_FOLDER,
           FACE_FOLDER, FACE_FEATURE_FOLDER, BACKGROUNDMUSIC_FOLDER, PREPARED_FOLDER, OUTPUT_FOLDER]:
     os.makedirs(p, exist_ok=True)
 
@@ -55,7 +66,7 @@ CAMERAS = [
         {
             "cam_id": "cam1",
             "rtsp_url": "rtsp://admin:bupt1021@192.168.1.5:554/Streaming/Channels/101",
-            "save_root": BASE_DIR,
+            "save_root": DATA_DIR,
             "record_duration": RECORD_DURATION,
         },
     ]

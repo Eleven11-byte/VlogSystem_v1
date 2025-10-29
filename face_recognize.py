@@ -7,7 +7,7 @@ from insightface.app import FaceAnalysis
 from sklearn import preprocessing
 import pickle
 import os
-
+from utils_app import extract_base_timestamp_regex, find_corresponding_video
 
 class FaceExtractor:
     """
@@ -42,6 +42,7 @@ def face_compare(feature1, feature2, threshold):
     else:
         return False
 
+# 已弃用，修改后的方法是find_similar_face
 def find_similar(file_path, target_embedding, threshold):
     """
     根据threshold检索相似的视频，返回列表
@@ -53,7 +54,7 @@ def find_similar(file_path, target_embedding, threshold):
 
     files = os.listdir(file_path)
     for file in files:
-        # FIXME: 修改文件名生成方式
+        # TODO: 修改文件名生成方式
         # print(file)
         faces_embeddings = np.load(file_path + '/' + file)
         for embedding in faces_embeddings:
@@ -65,7 +66,22 @@ def find_similar(file_path, target_embedding, threshold):
                     video_list.append(video_name)
     return video_list
 
+def find_similar_face(file_path, target_embedding, threshold):
+    """
+    file_path：存储特征的路径，如featuresfromvideo/view1
+    """
+    video_list = []
 
+    files = os.listdir(file_path)
+    for file_name in files:
+        file = os.path.join(file_path, file_name)
+        faces_embeddings = np.load(file)
+        for embedding in faces_embeddings:
+            if face_compare(embedding, target_embedding, threshold):
+                video_name = find_corresponding_video(file_name)
+                if video_name not in video_list:
+                    video_list.append(video_name)
+    return video_list
 
 def get_video(featurefile_path, target_embedding, threshold):
     """

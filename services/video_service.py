@@ -7,7 +7,6 @@ from config import (FACE_FEATURE_FOLDER, FEATURES_FOLDER, UPLOAD_FOLDER, PREPARE
                     BACKGROUNDMUSIC_FOLDER, OUTPUT_FOLDER, VIEW_POSITIONS, THRESHOLD)
 import face_recognize  # 保持原有接口
 from utils_app import reencode_video  # 可能用不到，但保留
-from utils_app import reencode_video
 
 def find_video_indices(userVideoList, keyword):
     indices = [index for index, video in enumerate(userVideoList) if keyword in video]
@@ -31,10 +30,10 @@ def getVideoList(view_position_list, target_embedding, threshold):
     video_list_result = []
 
     for view_position in view_position_list:
+        # 在每个景点的视频目录下调用
         feature_path = os.path.join(FEATURES_FOLDER, view_position)
         # use face_recognize.find_similar if you have it
-        video_list = face_recognize.find_similar(feature_path, target_embedding, threshold) \
-                    if hasattr(face_recognize, 'find_similar') else find_similar(feature_path, target_embedding, threshold)
+        video_list = face_recognize.find_similar_face(feature_path, target_embedding, threshold)
         if len(video_list) == 0:
             video_list_result.append(None)
         else:
@@ -67,18 +66,11 @@ def handle_get_video(request):
 
     for v in VIEW_POSITIONS:
         # find index in videoOfUser
-        """
-        idx = find_video_indices(videoOfUser, v)
-        user_video_name = videoOfUser[idx]
-        user_video_path = os.path.join(UPLOAD_FOLDER, v, f"{user_video_name}.mp4")
-        print(f"对应视频文件：{user_video_path}")
-        clip = VideoFileClip(user_video_path).set_fps(30).resize((3840, 2160))
-        clips.append(clip)
-        """
         try:
+            # TODO：取出对应的video的idx
             idx = find_video_indices(videoOfUser, v)
             user_video_name = videoOfUser[idx]
-            user_video_path = os.path.join(UPLOAD_FOLDER, v, f"{user_video_name}.mp4")
+            user_video_path = os.path.join(UPLOAD_FOLDER, v, f"{user_video_name}")
             print(f"对应视频文件：{user_video_path}")
             if not os.path.exists(user_video_path):
                 return jsonify({"error": f"缺少人像视频文件: {user_video_path}"}), 404
