@@ -9,7 +9,7 @@ from datetime import datetime
 from torch.nn.functional import embedding
 
 # from config import FRAMES_FOLDER, VIEW_POSITIONS, DETECT_CONDITION, CAMERAS
-from config import CAMERA_FRAME_FOLDER, CAMERA_VIDEO_FOLDER, FPS, CAMERAS, RECORD_DURATION
+from config import FPS
 from record import DetectVisitor
 from utils_app import ensure_dir
 import os
@@ -28,7 +28,7 @@ class CameraThread(threading.Thread):
         # 存储路径
         self.frames_dir = os.path.join(save_dir, "frames", cam_id)    
         self.records_dir = os.path.join(save_dir, "records", cam_id)
-        self.face_features_dir = os.path.join(save_dir, "facefeature", cam_id)
+        self.face_features_dir = os.path.join(save_dir, "featuresfromvideo", cam_id)
         self._ensure_dirs()
 
         # 状态控制
@@ -232,7 +232,7 @@ class CameraManager:
             "recording": thread.is_recording
         }
 
-
+"""
 if __name__ == "__main__":
     # 摄像头配置列表
 
@@ -254,3 +254,4 @@ if __name__ == "__main__":
         time.sleep(180)
     finally:
         manager.stop_all()
+"""

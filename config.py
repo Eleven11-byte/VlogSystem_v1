@@ -23,15 +23,10 @@ FRAME_SAVE_DIR = os.path.join(BASE_DIR, "data/camera_frames")
 CAMERA_VIDEO_FOLDER = os.path.join(BASE_DIR, "camera_videos")
 CAMERA_FRAME_FOLDER = os.path.join(BASE_DIR, "camera_frames")
 
-# 摄像头配置
-CAMERAS = [
-    {"id": "cam1", "rtsp_url": "rtsp://admin:bupt1021@192.168.1.5:554/Streaming/Channels/101", "enabled": True},
-    # {"id": "cam2", "rtsp_url": "rtsp://admin:password@192.168.1.102:554/Streaming/Channels/1", "enabled": True},
-    # 可继续添加摄像头
-]
-
 # ensure view folders exist
 VIEW_POSITIONS = ["view1", "view2", "view3"]
+# TODO:摄像头和景点之间的映射关系
+CAMERA_VIEW = {"cam1":"view1", "cam2":"view2"}
 
 for view in VIEW_POSITIONS:
     os.makedirs(os.path.join(FRAMES_FOLDER, view), exist_ok=True)
@@ -55,3 +50,14 @@ DETECT_CONDITION = [20, 800, 200, 100]
 FFMPEG_PATH = "D:/Document/ffmpeg-6.1.1-full_build/bin/ffmpeg.exe"
 FPS = 25
 RECORD_DURATION = 10
+
+CAMERAS = [
+        {
+            "cam_id": "cam1",
+            "rtsp_url": "rtsp://admin:bupt1021@192.168.1.5:554/Streaming/Channels/101",
+            "save_root": BASE_DIR,
+            "record_duration": RECORD_DURATION,
+        },
+    ]
+
+

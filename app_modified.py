@@ -1,47 +1,37 @@
 # app.py
 import moviepy.config as mpy_config
-from flask import Flask, request, jsonify, send_file, send_from_directory
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import os
-
-# make sure moviepy uses your ffmpeg
-mpy_config.change_settings({"FFMPEG_BINARY": "/usr/bin/ffmpeg"})
 
 from config import (
     FRAMES_FOLDER, UPLOAD_FOLDER, TEMP_FOLDER, THREEFRAMES_FOLDER,
     FEATURES_FOLDER, FACE_FOLDER, FACE_FEATURE_FOLDER, BACKGROUNDMUSIC_FOLDER,
-    PREPARED_FOLDER, OUTPUT_FOLDER, VIEW_POSITIONS, THRESHOLD
+    PREPARED_FOLDER, OUTPUT_FOLDER, CAMERAS, FFMPEG_PATH
 )
 
 # from services.camera_service import handle_upload_frames, get_is_recording
 
 from services.face_service import handle_upload_facepic, handle_upload_video
 from services.video_service import handle_get_video, download_video_file, preview_output
-from services.camera_service import camera_manager
+from services.camera_service_modified import CameraManager
+
+# make sure moviepy uses your ffmpeg
+mpy_config.change_settings({"FFMPEG_BINARY": FFMPEG_PATH})
 
 app = Flask(__name__)
 CORS(app)
-
-camera_manager.start_all()
 
 # create folders at startup (redundant safe)
 for p in [FRAMES_FOLDER, UPLOAD_FOLDER, TEMP_FOLDER, THREEFRAMES_FOLDER, FEATURES_FOLDER,
           FACE_FOLDER, FACE_FEATURE_FOLDER, BACKGROUNDMUSIC_FOLDER, PREPARED_FOLDER, OUTPUT_FOLDER]:
     os.makedirs(p, exist_ok=True)
-
 mpy_config.change_settings({"FFMPEG_BINARY": "D:/Document/ffmpeg-6.1.1-full_build/bin/ffmpeg.exe"})
 
-"""
-# 摄像头修改后已去掉
-# Routes (kept same endpoints as your original)
-@app.route('/isRecording', methods=['GET'])
-def is_recording():
-    return get_is_recording()
 
-@app.route('/uploadFrames', methods=['POST'])
-def upload_frames():
-    return handle_upload_frames(request)
-"""
+# 初始化摄像头
+camera_manager = CameraManager(CAMERAS)
+camera_manager.start_all()
 
 @app.route('/uploadVideo', methods=['POST'])
 def upload_video():

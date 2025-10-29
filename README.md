@@ -24,9 +24,10 @@ FACE_FEATURE_FOLDER = 'facefeature/'  # 上传的人脸特征
 BACKGROUNDMUSIC_FOLDER='audio/'#背景音乐
 PREPARED_FOLDER='prepareds/'#景区视频
 OUTPUT_FOLDER='outputs/'#输出视频文件夹
-FRAMES_FOLDER = 'frames/'#帧图片
+FRAMES_FOLDER = 'frames/'#帧图片，从录制视频中存储多帧图片存储
 UPLOAD_FOLDER = 'uploads/'#封装后人像视频
 TEMP_FOLDER = 'temp/'#封装前人像视频
 THREEFRAMES_FOLDER = 'threeframes/'#从视频中截取三帧图片存储
 FEATURES_FOLDER = 'featuresfromvideo/'  # 存储三帧对应提取的人脸特征
 ```
+

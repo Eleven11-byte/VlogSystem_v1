@@ -10,10 +10,10 @@ import cv2
 # timestamps used in your original code
 TIMESTAMPS = [5, 7.5, 10]
 
+# 加入摄像头设备后已弃用
+"""
 def handle_upload_video(request):
-    """
-    接收 multipart/form-data 视频文件并存储（保持原逻辑）
-    """
+    # 接收 multipart/form-data 视频文件并存储（保持原逻辑）
     if 'video' not in request.files:
         return 'No video part', 400
 
@@ -40,6 +40,7 @@ def handle_upload_video(request):
         print("extract frames error:", e)
 
     return 'Video uploaded successfully', 200
+"""
 
 def handle_upload_facepic(request):
     """
@@ -73,3 +74,4 @@ def handle_upload_facepic(request):
     np.save(faceFeature_path, embeddings)
 
     return jsonify({'message': '成功-人脸图像上传成功', 'userId': user_id})
+
