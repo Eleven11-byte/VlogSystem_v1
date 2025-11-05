@@ -54,7 +54,6 @@ def find_similar(file_path, target_embedding, threshold):
 
     files = os.listdir(file_path)
     for file in files:
-        # TODO: 修改文件名生成方式
         # print(file)
         faces_embeddings = np.load(file_path + '/' + file)
         for embedding in faces_embeddings:
