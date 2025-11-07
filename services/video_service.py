@@ -2,9 +2,9 @@
 import os
 import numpy as np
 from flask import jsonify, send_from_directory, send_file
-from moviepy.editor import VideoFileClip, concatenate_videoclips, AudioFileClip, CompositeAudioClip
+from moviepy.editor import VideoFileClip, concatenate_videoclips, AudioFileClip, CompositeAudioClip, ImageClip, CompositeVideoClip
 from config import (FACE_FEATURE_FOLDER, FEATURES_FOLDER, UPLOAD_FOLDER, PREPARED_FOLDER,
-                    BACKGROUNDMUSIC_FOLDER, OUTPUT_FOLDER, VIEW_POSITIONS, THRESHOLD)
+                    BACKGROUNDMUSIC_FOLDER, OUTPUT_FOLDER, VIEW_POSITIONS, THRESHOLD, OUTPUT_WATERMARK_FOLDER)
 import face_recognize  # 保持原有接口
 from utils_app import reencode_video  # 可能用不到，但保留
 
@@ -42,6 +42,84 @@ def getVideoList(view_position_list, target_embedding, threshold):
 
     return video_list_result, video_list_all
 
+
+def add_watermark(input_video_path, output_video_path, watermark_text="预览水印 - 付费解锁高清无水印"):
+    """
+    给视频添加水印
+
+    :param input_video_path: 输入视频路径
+    :param output_video_path: 输出视频路径
+    :param watermark_text: 水印文本
+    """
+    # 加载输入视频
+    video = VideoFileClip(input_video_path)
+    w, h = video.size  # 获取视频宽高
+
+    # 创建水印图像
+    from PIL import Image, ImageDraw, ImageFont
+    import math
+
+    font = ImageFont.truetype("watermark/msyh.ttc", 36)  # 黑体
+
+    # 计算水印文字大小
+    bbox = font.getbbox(watermark_text)
+    text_width = bbox[2] - bbox[0]
+    text_height = bbox[3] - bbox[1]
+
+    # 创建单个水印图像（带透明背景）
+    watermark_img = Image.new('RGBA', (text_width + 20, text_height + 20), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(watermark_img)
+    draw.text((10, 10), watermark_text, fill=(255, 255, 255, 80), font=font)  # 半透明白色
+
+    # 旋转水印
+    watermark_img = watermark_img.rotate(30, expand=True)
+    watermark_path = "watermark/watermark.png"
+    watermark_img.save(watermark_path)
+
+    # 创建多个水印实例，斜向铺满屏幕
+    watermarks = []
+
+    # 获取旋转后水印的实际尺寸
+    rotated_img = Image.open(watermark_path)
+    rotated_width, rotated_height = rotated_img.size
+
+    # 设置更大的间距，避免重叠
+    spacing_x = rotated_width + 15  # 水印间距（水印宽度 + 额外间距）
+    spacing_y = rotated_height + 15  # 水印间距（水印高度 + 额外间距）
+
+    # 计算需要的水印数量，确保铺满屏幕
+    rows = (h // spacing_y) + 2
+    cols = (w // spacing_x) + 2
+
+    for row in range(rows):
+        for col in range(cols):
+            # 计算每个水印的位置
+            x = col * spacing_x - spacing_x // 2
+            y = row * spacing_y - spacing_y // 2
+
+            # 交错排列，形成更好的视觉效果
+            if row % 2 == 1:
+                x += spacing_x // 2
+
+            # 确保水印不会超出屏幕边界太多
+            if x < w + rotated_width and y < h + rotated_height and x > -rotated_width and y > -rotated_height:
+                watermark = ImageClip(watermark_path).set_duration(video.duration).set_position((x, y))
+                watermarks.append(watermark)
+
+    # 合成视频（原视频 + 所有水印）
+    watermarked_video = CompositeVideoClip([video] + watermarks)
+    watermarked_video.write_videofile(output_video_path, codec='libx264', audio_codec='aac')
+
+    # 释放资源
+    video.close()
+    # 先释放所有水印实例
+    for watermark in watermarks:
+        watermark.close()
+    watermarked_video.close()
+
+    # 不删除临时水印文件，避免文件占用问题
+    print(f"水印添加完成，保留临时文件： {watermark_path}")
+
 def handle_get_video(request):
     music_type = request.form.get('musicType')
     user_id = request.form.get("userId")
@@ -76,6 +154,7 @@ def handle_get_video(request):
                 return jsonify({"error": f"缺少人像视频文件: {user_video_path}"}), 404
             clip = VideoFileClip(user_video_path).set_fps(30).resize((3840, 2160))
             clips.append(clip)
+
         except Exception as e:
             return jsonify({"error": f"视频列表中未找到{v}或索引错误: {e}"}), 400
 
@@ -121,6 +200,11 @@ def handle_get_video(request):
     output_path = os.path.join(OUTPUT_FOLDER, output_video)
     # write file (blocking)
     final_clip.write_videofile(output_path, codec='libx264', audio_codec='aac', fps=30)
+
+    # 添加水印
+    output_watermark_path = os.path.join(OUTPUT_WATERMARK_FOLDER, output_video)
+    add_watermark(output_path, output_watermark_path, "智旅VLOG")
+    print("添加水印完成，输出路径：", output_watermark_path)
 
     # close resources
     for clip in clips:

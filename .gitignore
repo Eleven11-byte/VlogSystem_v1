@@ -9,7 +9,8 @@
 /uploads/
 /result/
 /temp/
-/camera_test.py
+/pre_test/camera_test.py
 /records/
 /camera/
 /DATA/
+/environment.yml

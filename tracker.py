@@ -5,7 +5,7 @@ import cv2
 
 palette = (2 ** 11 - 1, 2 ** 15 - 1, 2 ** 20 - 1)
 cfg = get_config()
-cfg.merge_from_file("deep_sort/configs/deep_sort.yaml")
+cfg.merge_from_file("deep_sort/configs/deep_sort.yaml") # TODO：修改此处配置文件路径
 deepsort = DeepSort(cfg.DEEPSORT.REID_CKPT,
                     max_dist=cfg.DEEPSORT.MAX_DIST, min_confidence=cfg.DEEPSORT.MIN_CONFIDENCE,
                     nms_max_overlap=cfg.DEEPSORT.NMS_MAX_OVERLAP, max_iou_distance=cfg.DEEPSORT.MAX_IOU_DISTANCE,

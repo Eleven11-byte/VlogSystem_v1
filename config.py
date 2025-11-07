@@ -1,5 +1,6 @@
 # config.py
 import os
+import shutil
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -14,25 +15,7 @@ FACE_FEATURE_FOLDER = os.path.join(DATA_DIR, 'facefeature') + os.sep
 BACKGROUNDMUSIC_FOLDER = os.path.join(DATA_DIR, 'audio') + os.sep
 PREPARED_FOLDER = os.path.join(DATA_DIR, 'prepareds') + os.sep
 OUTPUT_FOLDER = os.path.join(DATA_DIR, 'outputs') + os.sep
-
-# core folders (same names as your original script)
-"""
-FRAMES_FOLDER = os.path.join(BASE_DIR, 'frames') + os.sep
-UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads') + os.sep
-TEMP_FOLDER = os.path.join(BASE_DIR, 'temp') + os.sep
-THREEFRAMES_FOLDER = os.path.join(BASE_DIR, 'threeframes') + os.sep
-FEATURES_FOLDER = os.path.join(BASE_DIR, 'featuresfromvideo') + os.sep
-
-FACE_FOLDER = os.path.join(BASE_DIR, 'faces') + os.sep
-FACE_FEATURE_FOLDER = os.path.join(BASE_DIR, 'facefeature') + os.sep
-BACKGROUNDMUSIC_FOLDER = os.path.join(BASE_DIR, 'audio') + os.sep
-PREPARED_FOLDER = os.path.join(BASE_DIR, 'prepareds') + os.sep
-OUTPUT_FOLDER = os.path.join(BASE_DIR, 'outputs') + os.sep
-"""
-# 上传或保存目录
-FRAME_SAVE_DIR = os.path.join(BASE_DIR, "data/camera_frames")
-CAMERA_VIDEO_FOLDER = os.path.join(BASE_DIR, "camera_videos")
-CAMERA_FRAME_FOLDER = os.path.join(BASE_DIR, "camera_frames")
+OUTPUT_WATERMARK_FOLDER = os.path.join(DATA_DIR, 'output_watermarks') + os.sep
 
 # ensure view folders exist
 VIEW_POSITIONS = ["view1", "view2", "view3"]
@@ -57,8 +40,18 @@ THRESHOLD = 1.0
 DETECT_CONDITION = [20, 800, 200, 100]
 # ffmpeg path is set via moviepy config in app.py
 
-# FFMPEG_PATH = "/usr/bin/ffmpeg"
-FFMPEG_PATH = "D:/Document/ffmpeg-6.1.1-full_build/bin/ffmpeg.exe"
+
+
+# 查找 ffmpeg 的路径
+ffmpeg_path = shutil.which("ffmpeg")
+
+if ffmpeg_path is None:
+    raise FileNotFoundError("未找到 ffmpeg，请确认已安装并加入系统环境变量。")
+
+print(f"找到 ffmpeg 路径：{ffmpeg_path}")
+
+FFMPEG_PATH = ffmpeg_path #TODO: 在不同设备上需要更改此处ffmpeg位置
+# FFMPEG_PATH = "D:/Document/ffmpeg-6.1.1-full_build/bin/ffmpeg.exe"
 FPS = 25
 RECORD_DURATION = 10
 
