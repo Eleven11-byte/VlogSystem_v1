@@ -4,7 +4,7 @@ import numpy as np
 from flask import jsonify, send_from_directory, send_file
 from moviepy.editor import VideoFileClip, concatenate_videoclips, AudioFileClip, CompositeAudioClip, ImageClip, CompositeVideoClip
 from config import (FACE_FEATURE_FOLDER, FEATURES_FOLDER, UPLOAD_FOLDER, PREPARED_FOLDER,
-                    BACKGROUNDMUSIC_FOLDER, OUTPUT_FOLDER, VIEW_POSITIONS, THRESHOLD, OUTPUT_WATERMARK_FOLDER)
+                    BACKGROUNDMUSIC_FOLDER, OUTPUT_FOLDER, VIEW_POSITIONS, THRESHOLD, OUTPUT_WATERMARK_FOLDER, FACE_FOLDER)
 import face_recognize  # 保持原有接口
 from utils_app import reencode_video  # 可能用不到，但保留
 
@@ -42,6 +42,38 @@ def getVideoList(view_position_list, target_embedding, threshold):
 
     return video_list_result, video_list_all
 
+def add_watermark_ffmpeg(input_video_path, output_video_path, watermark_text="预览水印"):
+    """
+    使用FFmpeg直接添加水印 - 最快方案
+
+    :param input_video_path: 输入视频路径
+    :param output_video_path: 输出视频路径
+    :param watermark_text: 水印文本
+    """
+    import subprocess
+    import time
+
+    start_time = time.time()
+
+    # FFmpeg命令添加文字水印
+    cmd = [
+        'ffmpeg', '-i', input_video_path,
+        '-vf', f"drawtext=text='{watermark_text}':fontfile=util/msyh.ttc:fontsize=36:fontcolor=white@0.3:x=(w-text_w)/2:y=(h-text_h)/2",
+        '-c:a', 'copy',  # 音频直接复制，不重新编码
+        '-preset', 'ultrafast',
+        '-crf', '23',
+        '-y',  # 覆盖输出文件
+        output_video_path
+    ]
+
+    try:
+        subprocess.run(cmd, check=True, capture_output=True)
+        end_time = time.time()
+        print(f"FFmpeg水印添加完成，耗时：{end_time - start_time:.2f}秒")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"FFmpeg处理失败：{e}")
+        return False
 
 def add_watermark(input_video_path, output_video_path, watermark_text="预览水印 - 付费解锁高清无水印"):
     """
@@ -203,7 +235,7 @@ def handle_get_video(request):
 
     # 添加水印
     output_watermark_path = os.path.join(OUTPUT_WATERMARK_FOLDER, output_video)
-    add_watermark(output_path, output_watermark_path, "智旅VLOG")
+    add_watermark_ffmpeg(output_path, output_watermark_path, "智旅VLOG")
     print("添加水印完成，输出路径：", output_watermark_path)
 
     # close resources
@@ -214,9 +246,10 @@ def handle_get_video(request):
 
     return jsonify({'message': 'Videos processed successfully', 'output': f'/outputs/{output_video}'})
 
+
 def preview_output(filename):
     # send_from_directory returns a response
-    return send_from_directory(OUTPUT_FOLDER, filename)
+    return send_from_directory(OUTPUT_WATERMARK_FOLDER, filename)
 
 def download_video_file(request):
     user_id = request.args.get("userId")
