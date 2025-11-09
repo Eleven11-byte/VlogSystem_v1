@@ -7,12 +7,12 @@ import os
 from config import (
     FRAMES_FOLDER, UPLOAD_FOLDER,
     FEATURES_FOLDER, FACE_FOLDER, FACE_FEATURE_FOLDER, BACKGROUNDMUSIC_FOLDER,
-    PREPARED_FOLDER, OUTPUT_FOLDER, CAMERAS, FFMPEG_PATH
+    PREPARED_FOLDER, OUTPUT_FOLDER, CAMERAS, FFMPEG_PATH, OUTPUT_WATERMARK_FOLDER
 )
 
 # from services.camera_service import handle_upload_frames, get_is_recording
 
-from services.face_service import handle_upload_facepic
+from services.face_service import handle_upload_facepic, preview_facepic_output
 from services.video_service import handle_get_video, download_video_file, preview_output
 from camera_service_modified import CameraManager
 
@@ -24,7 +24,7 @@ CORS(app)
 
 # create folders at startup (redundant safe)
 for p in [FRAMES_FOLDER, UPLOAD_FOLDER, FEATURES_FOLDER,
-          FACE_FOLDER, FACE_FEATURE_FOLDER, BACKGROUNDMUSIC_FOLDER, PREPARED_FOLDER, OUTPUT_FOLDER]:
+          FACE_FOLDER, FACE_FEATURE_FOLDER, BACKGROUNDMUSIC_FOLDER, PREPARED_FOLDER, OUTPUT_FOLDER, OUTPUT_WATERMARK_FOLDER]:
     os.makedirs(p, exist_ok=True)
 
 
@@ -38,6 +38,9 @@ camera_manager.start_all()
 def upload_video():
     return handle_upload_video(request)
 """
+@app.route('/facepics/<path:filename>', methods=['GET'])
+def preview_facepic(filename):
+    return preview_facepic_output(filename)
 
 @app.route('/uploadFacePic', methods=['POST'])
 def upload_facepic():
